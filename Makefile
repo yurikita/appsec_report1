@@ -17,7 +17,7 @@ test: dictionary.o spell.o test_main.o
 	gcc -Wall -o test_main test_main.o spell.o dictionary.o -lcheck -lm -lrt -lpthread -lsubunit
 	./test_main
 
-prog: dictionary.o spell.o main.o
+prog: dictionary.o spell.o
 	gcc -Wall -o spell_check dictionary.o spell.o
 
 clean:
