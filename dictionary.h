@@ -48,7 +48,7 @@ typedef node* hashmap_t;
  * Example:
  *  int num_misspelled = check_words(text_file, hashtable, misspelled);
  **/
-//int check_words(FILE* fp, hashmap_t hashtable[], char * misspelled[]);
+int check_words(FILE* fp, hashmap_t hashtable[], char * misspelled[]);
 
 /**
  * Returns true if word is in dictionary else false.
@@ -66,7 +66,7 @@ typedef node* hashmap_t;
  * Example:
  *  bool correct  = check_word(word, hashtable);
  **/
-//bool check_word(const char* word, hashmap_t hashtable[]);
+bool check_word(const char* word, hashmap_t hashtable[]);
 
 /**
  * Loads dictionary into memory.  Returns true if successful else false.
@@ -85,7 +85,7 @@ typedef node* hashmap_t;
  * Example:
  *  bool success = load_dictionary("wordlist.txt", hashtable);
  **/
-//bool load_dictionary(const char* dictionary_file, hashmap_t hashtable[]);
+bool load_dictionary(const char* dictionary_file, hashmap_t hashtable[]);
 
 /**
  * Already implemented in dictionary.c
