@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include "dictionary.h"
 #include <stdlib.h>
+#include <string.h>
 
 bool check_word(const char* word, hashmap_t hashtable[]){
      if(strlen(word) > LENGTH)
