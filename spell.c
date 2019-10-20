@@ -39,38 +39,51 @@ int check_words(FILE* fp, hashmap_t hashtable[], char * misspelled[]) {
     ssize_t read;
     char * line = NULL;
     char buffer[LENGTH + 1];
+    
+    int startWord = 0;
+    int endWord = 0;
+    int count = 0;
     while((read = getline(&line, &len, fp)) != EOF){
-        char *token = strtok(line, " \n");
-        while(token){
-            if(strlen(token) > LENGTH)
-                token = strtok(NULL, " \n");
-            int count = 0;
-            for(int i = 0; i<strlen(token); i++){
-                if(i == 0){
-                    if(isalpha(token[i])){
-                        buffer[count] = token[i];
+        //printf("%s\n", line);
+        for(int i = 0; line[i] != '\n'; i++){
+            if(isspace(line[i])){
+                endWord = i;
+                //printf("%d:%d\n", startWord, endWord);
+                if((startWord - endWord) > LENGTH){
+                    count = 0;
+                    startWord = i+1;
+                }
+                for(int j = startWord;j < endWord;j++){
+                    if(j == startWord){
+                        if(isalpha(line[j])){
+                            buffer[count] = line[j];
+                            count += 1;
+                        }
+                    }
+                    else if(j == (endWord - 1)){
+                        //printf("last letter %c,%d\n", line[j], count);
+                        if(isalpha(line[j])){
+                            buffer[count] = line[j];
+                            count += 1;
+                        }
+                    }
+                    else{
+                        buffer[count] = line[j];
                         count += 1;
                     }
                 }
-                else if(i == (strlen(token) - 1)){
-                    if(isalpha(token[i])){
-                        buffer[count] = token[i];
-                        count += 1;
-                    }
+                buffer[count] = '\0';
+                //printf("%s\n", buffer);
+                if(!check_word(buffer, hashtable)){
+                    //printf("%s, Misspelled\n", buffer);
+                    misspelled[num_misspelled] = (char*)malloc((LENGTH + 1)*sizeof(char));
+                    strncpy(misspelled[num_misspelled], buffer, (count + 1));
+                    misspelled[num_misspelled][count] = '\0';
+                    num_misspelled += 1;
                 }
-                else{
-                    buffer[count] = token[i];
-                    count += 1;
-                }
+                count = 0;
+                startWord = i+1;
             }
-            buffer[count] = '\0';
-            if(!check_word(buffer, hashtable)){
-                misspelled[num_misspelled] = (char*)malloc((LENGTH + 1)*sizeof(char));
-                strncpy(misspelled[num_misspelled], buffer, (count + 1));
-                misspelled[num_misspelled][count] = '\0';
-                num_misspelled += 1;
-            }
-            token = strtok(NULL, " \n");
         }
     }
     return num_misspelled;
