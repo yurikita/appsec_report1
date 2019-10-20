@@ -3,150 +3,136 @@
 #include <stdio.h>
 #include "dictionary.h"
 #include <stdlib.h>
-#include <check.h>
 
-
-// maximum length for a word
-// (e.g., pneumonoultramicroscopicsilicovolcanoconiosis)
-//#define LENGTH 45
-//#define HASH_SIZE 2000
-//#define MAX_MISSPELLED 1000
-
-
-/*typedef struct node
-{
-    char word[LENGTH + 1];
-    struct node* next;
-}
-node;
-
-typedef node* hashmap_t;
-*/
-
-/**
- * Array misspelled is populated with words that are misspelled. Returns the length of misspelled.
- */
-/**
- * Inputs:
- *  fp:         A file pointer to the document to check for spelling errors.
- *  hashtable:  The hash table used to determine spelling
- *  misspelled: An empty char* array to be populated with misspelled words.
- *              This array will never be greater than 1000 words long.
- *            
- * Returns:
- *  int:        The number of words in the misspelled arary.
- *
- * Modifies:
- *  misspelled: This array will be filled with misspelled words.
- *
- * Example:
- *  int num_misspelled = check_words(text_file, hashtable, misspelled);
- **/
-int check_words(FILE* fp, hashmap_t hashtable[], char * misspelled[]);
-
-/**
- * Returns true if word is in dictionary else false.
- */
-/**
- * Inputs:
- *  word:       A word to check the spelling of.
- *  hashtable:  The hash table used to determine spelling
- *            
- * Returns:
- *  bool:       A boolean value indicating if the word was correctly spelled.
- *
- * Modifies:
- *  
- * Example:
- *  bool correct  = check_word(word, hashtable);
- **/
 bool check_word(const char* word, hashmap_t hashtable[]){
-    int bucket = hash_function(word);
-    hashmap_t cursor = hashtable[bucket];
-    while(cursor != NULL){
-	bool isMatch = true;
-	while(isMatch){	
-            for(int i = 0; i < strlen(word); i++){
-	        if(tolower(word[i]) != cursor->word[i])
-		    isMatch = false;
-	        if(i = (strlen(word) - 1))
-		    return true;
-
-	    }
-	}
-	cursor = cursor->next;
+     if(strlen(word) > LENGTH)
+         return false;
+     char buffer[LENGTH + 1];
+     for (int i = 0; i < strlen(word); i++){
+         buffer[i] = tolower(word[i]);
+     }
+     buffer[strlen(word)] = '\0';
+     int bucket = hash_function(buffer);
+     hashmap_t cursor = hashtable[bucket];
+     while(cursor != NULL){
+         bool isMatch = true;
+         while(isMatch){
+             for(int i = 0; i < strlen(buffer); i++){
+                 if(buffer[i] != cursor->word[i]){
+                     isMatch = false;
+                     break;
+                 }
+                 if(i == (strlen(buffer) - 1)){
+                     return true;
+                 }
+             }
+         }
+         cursor = cursor->next;
     }
     return false;
 }
 
-/**
- * Loads dictionary into memory.  Returns true if successful else false.
- */
-/**
- * Inputs:
- *  dictionary_file:    Path to the words file.
- *  hashtable:          The hash table to be populated.
- *            
- * Returns:
- *  bool:       Whether or not the hashmap successfully populated.
- *
- * Modifies:
- *  hashtable: This hashmap should be filled with words from the file provided.
- *
- * Example:
- *  bool success = load_dictionary("wordlist.txt", hashtable);
- **/
+int check_words(FILE* fp, hashmap_t hashtable[], char * misspelled[]) {
+    int num_misspelled = 0;
+    size_t len = 0;
+    ssize_t read;
+    char * line = NULL;
+    char buffer[LENGTH + 1];
+    while((read = getline(&line, &len, fp)) != EOF){
+        char *token = strtok(line, " \n");
+        while(token){
+            if(strlen(token) > LENGTH)
+                token = strtok(NULL, " \n");
+            int count = 0;
+            for(int i = 0; i<strlen(token); i++){
+                if(i == 0){
+                    if(isalpha(token[i])){
+                        buffer[count] = token[i];
+                        count += 1;
+                    }
+                }
+                else if(i == (strlen(token) - 1)){
+                    if(isalpha(token[i])){
+                        buffer[count] = token[i];
+                        count += 1;
+                    }
+                }
+                else{
+                    buffer[count] = token[i];
+                    count += 1;
+                }
+            }
+            buffer[count] = '\0';
+            if(!check_word(buffer, hashtable)){
+                misspelled[num_misspelled] = (char*)malloc((LENGTH + 1)*sizeof(char));
+                strncpy(misspelled[num_misspelled], buffer, (count + 1));
+                misspelled[num_misspelled][count] = '\0';
+                num_misspelled += 1;
+            }
+            token = strtok(NULL, " \n");
+        }
+    }
+    return num_misspelled;
+}
+
 bool load_dictionary(const char* dictionary_file, hashmap_t hashtable[]){
     for(int i=0; i < HASH_SIZE; i++){
         hashtable[i] = NULL;
     }
     FILE *fp = fopen(dictionary_file, "r");
     if(fp == NULL){
-	printf("%s", "Failed to open file");
-	return false;
+        perror("fopen");
+        exit(1);
     }
-
     int c;
     int bucket;
     int count=0;
     char buffer[LENGTH+1];
+    int bufferOverflow = 0;
+    //char* buffer = (char*)malloc((LENGTH+1) * sizeof(char))
     while((c = fgetc(fp)) != EOF){
-	//If c is a space, then have completed a word. Check if last character is a special character. If so, overwrite. 
-	if(isspace(c)){
-	    if(!isalpha(buffer[count - 1]))
-		count = count - 1;
-	    buffer[count] = '\0';
-	    //Add word to hashtable
-	    hashmap_t new_node = (hashmap_t)malloc(sizeof(node));
-	    new_node->next = NULL;
-	    for (int i = 0; i < count + 1; i++){
+        //If count == LENGTH, and c is not a space, then we have reached the max length allowed for a word. To avoid a buffer overflow, return false.
+        if(count > LENGTH){
+            bufferOverflow = 1;
+            if(isspace(c)){
+                bufferOverflow = 0;
+                count = 0;
+            }
+        }
+        //If c is a space, then have completed a word. Check if last character is a special character. If so, overwrite.
+        else if(isspace(c)){
+            //if(!(isalpha(buffer[count - 1]))){
+            //    count = count - 1;
+            //}
+            buffer[count] = '\0';
+            //Add word to hashtable
+            hashmap_t new_node = (hashmap_t)malloc(sizeof(node));
+            new_node->next = NULL;
+            //strncpy(new_node->word, buffer, count);
+            for (int i = 0; i < count + 1; i++){
                 new_node->word[i] = buffer[i];
-	    }
-	    new_node->word[count] = '\0';
+            }
+            new_node->word[count] = '\0';
+            //int hash_function(const char* word);
             bucket = hash_function(new_node->word);
             if(hashtable[bucket] == NULL){
                 hashtable[bucket] = new_node;
             }
-	    else{
-		new_node->next = hashtable[bucket];
+            else{
+                new_node->next = hashtable[bucket];
                 hashtable[bucket] = new_node;
-	    }
-	    count = 0;
-	}
-	//If count == LENGTH, and c is not a space, then we have reached the max length allowed for a word. To avoid a buffer overflow, return false.
-	else if(count == LENGTH){
-            return false;
+            }
+            count = 0;
+            //buffer[count] = '\0';
         }
-	else if((count == 0) & !(isalpha(c)))
-	    continue;
+        else if((count == 0) & !(isalpha(c)))
+            continue;
         else{
-	    c = tolower(c);
-	    buffer[count] = c;
-	    count += 1;
-	}
-
+            c = tolower(c);
+            buffer[count] = c;
+            count += 1;
+        }
     }
     fclose(fp);
     return true;
 }
-
