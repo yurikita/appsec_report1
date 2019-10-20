@@ -5,14 +5,15 @@
 #include <stdlib.h>
 #include <check.h>
 
+#define DICTIONARY "wordlist.txt"
+#define TESTDICT "test_worlist.txt"
+
 // maximum length for a word
 // (e.g., pneumonoultramicroscopicsilicovolcanoconiosis)
 //#define LENGTH 45
 //#define HASH_SIZE 2000
 //#define MAX_MISSPELLED 1000
 
-#define DICTIONARY "wordlist.txt"
-#define TESTDICT "test_worlist.txt"
 
 /*typedef struct node
 {
@@ -92,20 +93,23 @@ bool load_dictionary(const char* dictionary_file, hashmap_t hashtable[]){
     int c;
     int bucket;
     int count=9;
-    char* buffer[LENGTH+1];
+    char buffer[LENGTH+1];
     //char* buffer = (char*)malloc((LENGTH+1) * sizeof(char))
     while((c = fgetc(fp)) != EOF){
 	//If c is a space, then have completed a word. Check if last character is a special character. If so, overwrite. 
 	if(isspace(c)){
 	    if(~isalpha(buffer[count - 1]))
 		count = count - 1;
-	    buffer[count] = "\0";
+	    buffer[count] = '\0';
 	    //Add word to hashtable
 	    hashmap_t new_node = (hashmap_t)malloc(sizeof(node));
 	    new_node->next = NULL;
-	    for (int i = 0; i < count + 1; i++){
-                new_node->word[i] = buffer[i];
-	    }
+	    strncpy(new_node->word, buffer, count + 1);
+	    new_node->word[count] = '\0';
+	    //for (int i = 0; i < count + 1; i++){
+            //    new_node->word[i] = buffer[i];
+	    //}
+	    //int hash_function(const char* word);
             bucket = hash_function(new_node->word);
             if(hashtable[bucket] == NULL){
                 hashtable[bucket] = new_node;
@@ -114,6 +118,7 @@ bool load_dictionary(const char* dictionary_file, hashmap_t hashtable[]){
 		new_node->next = hashtable[bucket];
                 hashtable[bucket] = new_node;
 	    }
+	    printf("%s", new_node->word);
 	    count = 0;
 	}
 	//If count == LENGTH, and c is not a space, then we have reached the max length allowed for a word. To avoid a buffer overflow, return false.
@@ -133,9 +138,7 @@ bool load_dictionary(const char* dictionary_file, hashmap_t hashtable[]){
     return true;
 }
 
-void main(){
-    hashmap_t hashtable[HASH_SIZE];
-    ck_assert(load_dictionary(TESTDICT, hashtable));
-}
-
-
+//void main(){
+//    hashmap_t hashtable[HASH_SIZE];
+//    load_dictionary(TESTDICT, hashtable);
+//}
