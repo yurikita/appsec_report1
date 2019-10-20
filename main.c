@@ -11,7 +11,10 @@ int main(int argc, char *argv[]) {
     char* input_file  = argv[1];
     char* dictionary_file = argv[2];
     node* hashtable[HASH_SIZE];
-    loaded_dict = load_dictionary(dictionary_file, hashtable);
+    bool loaded_dict = load_dictionary(dictionary_file, hashtable);
+    if(!loaded_dict)
+	printf("%s", "Issue loading dictionary");
+    
     FILE *fp = fopen(input_file, "r");
     if(fp==NULL){
         perror("fopen");
