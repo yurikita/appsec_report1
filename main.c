@@ -21,5 +21,19 @@ int main(int argc, char *argv[]) {
     char *misspelled[MAX_MISSPELLED];
     num_misspelled = check_words(fp, hashtable, misspelled);
     printf("Num misspelled: %d", num_misspelled);
+
+
+    hashmap_t cursor = NULL;
+    for(int i = 0; i<HASH_SIZE; i++){
+        cursor = hashtable[i];
+	hashmap_t tmp;
+	while(cursor != NULL){
+	    tmp = cursor;
+	    cursor = cursor -> next;
+	    free(tmp);
+	    tmp = NULL;
+	}
+    
+    }
     return 0;
 }
