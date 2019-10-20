@@ -89,14 +89,10 @@ bool load_dictionary(const char* dictionary_file, hashmap_t hashtable[]){
     int bucket;
     int count=0;
     char buffer[LENGTH+1];
-    int bufferOverflow = 0;
-    //char* buffer = (char*)malloc((LENGTH+1) * sizeof(char))
     while((c = fgetc(fp)) != EOF){
         //If count == LENGTH, and c is not a space, then we have reached the max length allowed for a word. To avoid a buffer overflow, return false.
         if(count > LENGTH){
-            bufferOverflow = 1;
             if(isspace(c)){
-                bufferOverflow = 0;
                 count = 0;
             }
         }
