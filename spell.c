@@ -86,6 +86,52 @@ int check_words(FILE* fp, hashmap_t hashtable[], char * misspelled[]) {
     }
     return num_misspelled;
 }
+/*
+int check_words(FILE* fp, hashmap_t hashtable[], char * misspelled[]) {
+    int num_misspelled = 0;
+    size_t len = 0;
+    ssize_t read;
+    char * line = NULL;
+    char buffer[LENGTH + 1];
+    char *rest = NULL;
+    while((read = getline(&line, &len, fp)) != EOF){
+        char *token = strtok_r(line, " \r\n\t", &rest);
+        while(token){
+            if(strlen(token) > LENGTH)
+                token = strtok_r(NULL, " \r\n\t", &rest);
+            int count = 0;
+            for(int i = 0; i<strlen(token); i++){
+                if(i == 0){
+                    if(isalpha(token[i])){
+                        buffer[count] = token[i];
+                        count += 1;
+                    }
+                }
+                else if(i == (strlen(token) - 1)){
+                    if(isalpha(token[i])){
+                        buffer[count] = token[i];
+                        count += 1;
+                    }
+                }
+                else{
+                    buffer[count] = token[i];
+                    count += 1;
+                }
+            }
+            buffer[count] = '\0';
+            if(!check_word(buffer, hashtable)){
+                misspelled[num_misspelled] = (char*)malloc((LENGTH + 1)*sizeof(char));
+                strncpy(misspelled[num_misspelled], buffer, (count + 1));
+                misspelled[num_misspelled][count] = '\0';
+                num_misspelled += 1;
+            }
+            token = strtok_r(NULL, " \r\n\t", &rest);
+        }
+    }
+    return num_misspelled;
+}
+
+*/
 
 bool load_dictionary(const char* dictionary_file, hashmap_t hashtable[]){
     for(int i=0; i < HASH_SIZE; i++){
