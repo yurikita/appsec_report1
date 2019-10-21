@@ -45,7 +45,7 @@ int check_words(FILE* fp, hashmap_t hashtable[], char * misspelled[]) {
     int count = 0;
     while((read = getline(&line, &len, fp)) != EOF){
         //printf("%s\n", line);
-        for(int i = 0; i < len; i++){
+        for(int i = 0; i < strlen(line); i++){
             if(isspace(line[i])){
                 endWord = i;
                 //printf("%d:%d\n", startWord, endWord);
