@@ -5,15 +5,9 @@
 #include <stdbool.h>
 #include "dictionary.h"
 
-//int main(int argc, char *argv[]) 
-int main(){
-    //if(argc != 2)
-    //	return 0;
-    //char* input_file  = argv[1];
-    //char* dictionary_file = argv[2];
-    //
-    char* input_file = "test1.txt";
-    char* dictionary_file = "wordlist.txt";
+int main(int argc, char *argv[]){
+    char* input_file  = argv[1];
+    char* dictionary_file = argv[2];
     hashmap_t hashtable[HASH_SIZE];
     bool loaded_dict = load_dictionary(dictionary_file, hashtable);
     if(!loaded_dict)
@@ -27,7 +21,7 @@ int main(){
     int num_misspelled;
     char *misspelled[MAX_MISSPELLED];
     num_misspelled = check_words(fp, hashtable, misspelled);
-    printf("Num misspelled: %d", num_misspelled);
+    printf("Num misspelled: %d\n", num_misspelled);
 
 
     hashmap_t cursor = NULL;

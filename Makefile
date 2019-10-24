@@ -18,7 +18,7 @@ main.o: main.c
 
 test: dictionary.o spell.o main.o
 	gcc -Wall -o spell_check main.o spell.o dictionary.o -lcheck -lm -lrt -lpthread -lsubunit
-	./spell_check
+	./spell_check tests/test1.txt wordlist.txt
 
 prog: dictionary.o spell.o main.o
 	gcc -Wall -o spell_check dictionary.o spell.o main.o

@@ -9,6 +9,9 @@ START_TEST(test_dictionary_normal)
 {
     hashmap_t hashtable[HASH_SIZE];
     ck_assert(load_dictionary(TESTDICT, hashtable));
+    const char* valid_word = "ethiiopian's";
+    int bucket = hash_function(word);
+    ck_assert(check_word(word, hashtable[bucket]));
     // Here we can test if certain words ended up in certain buckets
     // to ensure that our load_dictionary works as intended. I leave
     // this as an exercise.
@@ -23,6 +26,11 @@ START_TEST(test_check_word_normal)
     const char* punctuation_word_2 = "pl.ace";
     ck_assert(check_word(correct_word, hashtable));
     ck_assert(!check_word(punctuation_word_2, hashtable));
+    const char* end_punctuation_word = "testing?";
+    const char* beg_punctuation_word = "/flimsy";
+    ck_assert(check_word(end_punctuation_word, hashtable));
+    ck_assert(check_word(beg_punctuation_word, hashtable));
+    
     // Test here: What if a word begins and ends with "?
 }
 END_TEST
